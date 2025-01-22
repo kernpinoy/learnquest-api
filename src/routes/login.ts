@@ -3,7 +3,7 @@ import { logger } from "hono/logger";
 import { customLogger } from "../lib/custom-logger";
 import { verify } from "@node-rs/argon2";
 import { db } from "../db";
-import { users } from "../db/schema";
+import { sessions, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { lucia } from "../lib/auth";
 
@@ -26,7 +26,7 @@ app.post("/", async (c) => {
       {
         message: "Malformed JSON. Please check your request body.",
       },
-      400,
+      400
     );
   }
 
@@ -38,7 +38,7 @@ app.post("/", async (c) => {
       {
         message: "Username or password cannot be empty. Please try again.",
       },
-      400,
+      400
     );
   }
 
@@ -52,8 +52,16 @@ app.post("/", async (c) => {
       {
         message: "This username is not recognized. Please try again.",
       },
-      401,
+      401
     );
+  }
+
+  const hasSession = await db.query.sessions.findFirst({
+    where: eq(sessions.userId, user.id),
+  });
+
+  if (hasSession) {
+    return c.json({ message: "User already logged in." });
   }
 
   // Verify password

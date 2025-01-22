@@ -1,7 +1,9 @@
 {
   "name": "mobile-api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build --entrypoints ./src/index.ts --outdir ./build --target bun",
+    "start": "NODE_ENV=production bun build/index.js"
   },
   "dependencies": {
     "@lucia-auth/adapter-drizzle": "^1.1.0",
