@@ -3,7 +3,7 @@ import { logger } from "hono/logger";
 import { customLogger } from "../lib/custom-logger";
 import { lucia } from "../lib/auth";
 import { db } from "../db";
-import { sessions } from "../db/schema";
+import { sessions, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 const app = new Hono();
@@ -33,12 +33,15 @@ app.post("/", async (c) => {
   try {
     const sessionExists = await db.query.sessions.findFirst({
       where: eq(sessions.id, sessionId),
-      columns: { id: true },
     });
 
     if (!sessionExists) {
       return c.json({ message: "Invalid session ID." }, 403);
     }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, sessionExists.userId),
+    });
 
     // Invalidate the session in Lucia
     await lucia.invalidateSession(sessionId);
@@ -49,6 +52,7 @@ app.post("/", async (c) => {
     // Clear the cookie by setting it with Max-Age=0
     c.header("Set-Cookie", sessionCookie.serialize());
 
+    customLogger("User logged out:", `${user?.username}`);
     return c.json({ message: "Logged out successfully." });
   } catch {
     return c.json(

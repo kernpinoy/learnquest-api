@@ -105,6 +105,24 @@ export const studentsInfo = pgTable("students_info", {
   }),
 });
 
+export const studentRegistrations = pgTable("student_registrations", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  username: text("username").notNull().unique(),
+  hashedPassword: text("hashed_password").notNull(),
+  salt: text("salt").notNull().unique(),
+  classCode: text("class_code").notNull(),
+  teacherId: text("teacher_id").notNull(),
+  firstName: text("first_name").notNull(),
+  middleName: text("middle_name").notNull(),
+  lastName: text("last_name").notNull(),
+  gender: gender("gender").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const sessions = pgTable("sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id")
@@ -117,7 +135,9 @@ export const sessions = pgTable("sessions", {
 });
 
 export const file_upload = pgTable("file_upload", {
-  id: text("id").$defaultFn(() => crypto.randomUUID()),
+  id: text("id")
+    .$defaultFn(() => crypto.randomUUID())
+    .primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -130,7 +150,9 @@ export const file_upload = pgTable("file_upload", {
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",
-  }).notNull(),
+  })
+    .notNull()
+    .defaultNow(),
   size: integer("size"),
   fileType: text("filetype"),
 });

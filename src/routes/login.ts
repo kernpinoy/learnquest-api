@@ -56,6 +56,15 @@ app.post("/", async (c) => {
     );
   }
 
+  if (user.role !== "student") {
+    return c.json(
+      {
+        message: "This is for student login only.",
+      },
+      401
+    );
+  }
+
   const hasSession = await db.query.sessions.findFirst({
     where: eq(sessions.userId, user.id),
   });
@@ -84,6 +93,7 @@ app.post("/", async (c) => {
   // Send cookies to headers
   c.header("Set-Cookie", sessionCookie.serialize());
 
+  customLogger("User logged in:", `${user.username}`);
   return c.json({ message: "Logged in successfully." });
 });
 
