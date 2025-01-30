@@ -1,0 +1,6 @@
+[variables]
+BUN_VERSION = "1.2.0"
+
+[phases.setup]
+nixPkgs = ["bun"]
+cmds = ["nix-env -iA nixpkgs.bun"]
