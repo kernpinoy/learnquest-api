@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { eq } from "drizzle-orm";
-import { classrooms, studentRegistrations, users } from "../db/schema";
+import { count, eq } from "drizzle-orm";
+import {
+  classrooms,
+  studentRegistrations,
+  studentsInfo,
+  users,
+} from "../db/schema";
 import { logger } from "hono/logger";
 import { customLogger } from "../lib/custom-logger";
 import { getSalt, hashPassword } from "../lib/hash";
@@ -61,6 +66,18 @@ app.post("/", async (c) => {
       { message: "Class code is invalid. Please check your class code." },
       400
     );
+  }
+
+  // check if class is full
+  const [studentCount] = await db
+    .select({
+      count: count(),
+    })
+    .from(studentsInfo)
+    .where(eq(studentsInfo.classroomId, existingClass.id));
+
+  if (studentCount.count == existingClass.maxStudents) {
+    return c.json({ message: "Class already full." }, 400);
   }
 
   // Process names for proper capitalization

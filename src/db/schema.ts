@@ -156,3 +156,16 @@ export const file_upload = pgTable("file_upload", {
   size: integer("size"),
   fileType: text("filetype"),
 });
+
+export const gameScores = pgTable("game_scores", {
+  id: text("id")
+    .$defaultFn(() => crypto.randomUUID())
+    .primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  classroomId: text("classroom_id")
+    .notNull()
+    .references(() => classrooms.id, { onDelete: "cascade" }),
+  score: integer("score").notNull(),
+});
