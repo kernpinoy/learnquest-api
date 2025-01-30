@@ -5,7 +5,7 @@ export const credentials = {
   secretAccessKey: process.env.MINIO_SECRET_KEY,
   bucket: "learnquest-storage",
   region: process.env.MINIO_LOCATION,
-  endpoint: "http://localhost:9000",
+  endpoint: process.env.MINIO_ENDPOINT,
 };
 
 export const client = new S3Client(credentials);
